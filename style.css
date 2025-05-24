@@ -1,0 +1,72 @@
+body {
+  background: #fff0f5;
+  font-family: 'Quicksand', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-image: url('https://i.imgur.com/w1URB1C.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+.container {
+  width: 90%;
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(255, 192, 203, 0.4);
+}
+
+h1 {
+  font-family: 'Patrick Hand', cursive;
+  text-align: center;
+  color: #e75480;
+}
+
+h2 {
+  color: #555;
+}
+
+label {
+  display: block;
+  margin: 15px 0 5px;
+  font-weight: bold;
+  color: #444;
+}
+
+textarea, select, input[type="range"], input[type="text"], input[type="file"] {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: 'Quicksand', sans-serif;
+  margin-bottom: 10px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #e75480;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #d0406b;
+}
+
+.hasil {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #ffe4ec;
+  border-left: 5px solid #e75480;
+  border-radius: 10px;
+  white-space: pre-wrap;
+}
+
+

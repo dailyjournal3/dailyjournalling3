@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Cute Journal</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Quicksand&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1>“Kamu nggak harus produktif setiap saat, tapi kamu harus tetap berjalan.”</h1>
+
+    <form id="journalForm">
+      <h2>Agenda Hari Ini (edit sendiri)</h2>
+      <textarea name="agenda" placeholder="Contoh: - Belajar UTBK\n- Nugas sejarah\n- Rapat OSIS"></textarea>
+
+      <label>🌼 Hal yang disyukuri hari ini:</label>
+      <textarea name="syukur" required></textarea>
+
+      <label>📘 Pelajaran yang didapat hari ini:</label>
+      <textarea name="pelajaran" required></textarea>
+
+      <label>🔁 Hal yang perlu diperbaiki besok:</label>
+      <textarea name="perbaikan" required></textarea>
+
+      <label>😄 Mood hari ini:</label>
+      <select name="mood">
+        <option>😊 Bahagia</option>
+        <option>😐 Biasa aja</option>
+        <option>😢 Sedih</option>
+        <option>💪 Produktif</option>
+        <option>😴 Capek</option>
+      </select>
+
+      <label>📊 Tingkat Produktivitas (%):</label>
+      <input type="range" name="produktivitas" min="0" max="100" value="50" oninput="this.nextElementSibling.value = this.value + '%'">
+      <output>50%</output>
+
+      <label>🍽️ Makanan Hari Ini:</label>
+      <input type="text" name="pagi" placeholder="Makan pagi" />
+      <input type="text" name="siang" placeholder="Makan siang" />
+      <input type="text" name="malam" placeholder="Makan malam" />
+
+      <label>📸 Upload Foto Kenangan:</label>
+      <input type="file" id="foto" accept="image/*" />
+
+      <label>📝 Catatan tambahan:</label>
+      <textarea name="catatan"></textarea>
+
+      <label>🎯 Daftar Tugas:</label>
+      <textarea name="tugas" placeholder="- Bikin PPT sejarah\n- Cuci sepatu\n- Belajar debat Geo"></textarea>
+
+      <button type="submit">Simpan Jurnal</button>
+    </form>
+
+    <div class="hasil" id="hasilJurnal"></div>
+  </div>
+
+  
+  <script src="script.js"></script>
+</body>
+</html>
