@@ -1,52 +1,20 @@
-// URL Google Apps Script Web App (ganti dengan milikmu)
-const endpointURL = 'https://script.google.com/macros/s/AKfycbx1ZC94VuW01GlqCYy_vCCB2ffLvLa-ijnEmO6912IZoNtDskbpwhzi2gBJFcLJx2dQ/exec';
-
 const siswa = [
-  "Aika Hasna Rihadatulaisy",
-  "Aila Darin Aqilah",
-  "Almeira Bilqis Azarine",
-  "Annisa Nurnazmi",
-  "Anugrah Sastra Ditrya Ramadhana",
-  "Berliana Aulia Putri",
-  "Chandralita Sukma Namina",
-  "Charissa Nazwa Ardestia",
-  "Danis Dihyan Palguna",
-  "Dede Fano Sofiyudin",
-  "Dwi Keyla",
-  "Fakhira Nada Zalfa",
-  "Fathia Nurahma Dianah",
-  "Ferdi Herdiyansah",
-  "Genta Revolusi",
-  "Ghassani Syahmah Azzahra",
-  "Gybran Rakha Pratama",
-  "Hasna Tarisha Kusuma",
-  "Jessica Hutauruk",
-  "Jihan Dzakiyyatunnisa",
-  "Keizza Wiratama Aditya Nugraha",
-  "Key Aura Nazwa",
-  "Keysha Naya Ristiyani",
-  "Khezia Anju Kiren Sitinjak",
-  "Meifa Fatimatuzzahra",
-  "Muki Nurrohmah",
-  "Nadindra Fadhil Al-Faiq",
-  "Nadya Sri Mustika",
-  "Radith Apriliyan Nurul Haq",
-  "Raka Zulfa Saputra",
-  "Rifdah Aufaa Nurhalizah",
-  "Rizky Fadillah",
-  "Shalfa Nur Fadhillah",
-  "Silah Gustiana",
-  "Siti Amirah",
-  "Siti Nurhumaida Rahma",
-  "Talitha Fadhilah Kanza"
+  "Aika Hasna Rihadatulaisy", "Aila Darin Aqilah", "Almeira Bilqis Azarine", "Annisa Nurnazmi",
+  "Anugrah Sastra Ditrya Ramadhana", "Berliana Aulia Putri", "Chandralita Sukma Namina",
+  "Charissa Nazwa Ardestia", "Danis Dihyan Palguna", "Dede Fano Sofiyudin", "Dwi Keyla",
+  "Fakhira Nada Zalfa", "Fathia Nurahma Dianah", "Ferdi Herdiyansah", "Genta Revolusi",
+  "Ghassani Syahmah Azzahra", "Gybran Rakha Pratama", "Hasna Tarisha Kusuma", "Jessica Hutauruk",
+  "Jihan Dzakiyyatunnisa", "Keizza Wiratama Aditya Nugraha", "Key Aura Nazwa",
+  "Keysha Naya Ristiyani", "Khezia Anju Kiren Sitinjak", "Meifa Fatimatuzzahra", "Muki Nurrohmah",
+  "Nadindra Fadhil Al-Faiq", "Nadya Sri Mustika", "Radith Apriliyan Nurul Haq",
+  "Raka Zulfa Saputra", "Rifdah Aufaa Nurhalizah", "Rizky Fadillah", "Shalfa Nur Fadhillah",
+  "Silah Gustiana", "Siti Amirah", "Siti Nurhumaida Rahma", "Talitha Fadhilah Kanza"
 ];
 
-// Fungsi buat slug (nama file foto)
 function slugify(text) {
   return text.toLowerCase().replace(/ /g, '-').replace(/[^\w\-]+/g, '');
 }
 
-// Element DOM
 const namaList = document.getElementById('nama-list');
 const detail = document.getElementById('detail');
 const namaTerpilih = document.getElementById('nama-terpilih');
@@ -57,22 +25,19 @@ const pesanList = document.getElementById('pesan-list');
 const backBtn = document.getElementById('back-btn');
 
 let currentSiswa = null;
+const endpoint = 'https://script.google.com/macros/s/AKfycbwUSMGM3BZeqDvSOzBWpeINPnIhjeGRHZbgTaCx1KRAeX126hUP43A72gKuwinRfRU/exec';
 
-// Tampilkan daftar nama siswa
 function tampilkanDaftar() {
   namaList.innerHTML = '';
   siswa.forEach((nama) => {
     const div = document.createElement('div');
     div.textContent = nama;
     div.className = 'nama-item';
-    div.addEventListener('click', () => {
-      tampilkanDetail(nama);
-    });
+    div.addEventListener('click', () => tampilkanDetail(nama));
     namaList.appendChild(div);
   });
 }
 
-// Tampilkan detail siswa, foto, dan load pesan menfess dari Sheets
 function tampilkanDetail(nama) {
   currentSiswa = nama;
   namaTerpilih.textContent = nama;
@@ -83,74 +48,69 @@ function tampilkanDetail(nama) {
   detail.classList.remove('hidden');
   namaList.style.display = 'none';
 
-  fetchPesanDariSheets();
+  loadPesan(); // Ambil semua pesan dari Google Sheets
   menfessInput.value = '';
 }
 
-// Fetch pesan dari Google Sheets via Web App
-async function fetchPesanDariSheets() {
-  if (!currentSiswa) return;
-  try {
-    const res = await fetch(endpointURL);
-    const data = await res.json();
-
-    // Filter pesan khusus siswa yang dipilih
-    const pesanSiswa = data.filter(item => item.nama === currentSiswa);
-
-    // Tampilkan pesan
-    pesanList.innerHTML = '';
-    if (pesanSiswa.length === 0) {
-      pesanList.innerHTML = '<li>Belum ada pesan menfess nih.</li>';
+function kirimPesan(pesan) {
+  fetch(endpoint, {
+    method: 'POST',
+    body: new URLSearchParams({
+      nama: currentSiswa,
+      pesan: pesan
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === 'success') {
+      alert('Pesan berhasil dikirim!');
+      menfessInput.value = '';
+      loadPesan(); // Refresh pesan setelah kirim
     } else {
-      pesanSiswa.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = p.pesan;
-        pesanList.appendChild(li);
-      });
+      alert('Gagal mengirim pesan: ' + data.message);
     }
-  } catch (err) {
-    console.error('Error fetch pesan:', err);
-    pesanList.innerHTML = '<li>Gagal mengambil pesan menfess.</li>';
-  }
+  })
+  .catch(err => {
+    console.error(err);
+    alert('Gagal mengirim pesan 😭');
+  });
 }
 
-// Kirim pesan ke Sheets via POST request
-async function kirimPesanKeSheets(nama, pesan) {
-  try {
-    const res = await fetch(endpointURL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ nama, pesan }),
+function loadPesan() {
+  fetch(endpoint)
+    .then(response => response.json())
+    .then(data => {
+      const pesanArr = data.filter(item => item.nama === currentSiswa);
+      pesanList.innerHTML = '';
+
+      if (pesanArr.length === 0) {
+        pesanList.innerHTML = '<li>Belum ada pesan untuk siswa ini.</li>';
+      } else {
+        pesanArr.forEach((item) => {
+          const li = document.createElement('li');
+          li.textContent = item.pesan;
+          pesanList.appendChild(li);
+        });
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      alert('Gagal mengambil pesan 😢');
     });
-    return await res.json();
-  } catch (err) {
-    console.error('Error kirim pesan:', err);
-    return { status: 'error', message: 'Gagal mengirim pesan' };
-  }
 }
 
-// Event kirim pesan
-kirimBtn.addEventListener('click', async () => {
+kirimBtn.addEventListener('click', () => {
   const pesan = menfessInput.value.trim();
   if (!pesan) {
-    alert('Tulis pesan dulu ya!');
+    alert('Tulis dulu pesannya yaa!');
     return;
   }
-  const result = await kirimPesanKeSheets(currentSiswa, pesan);
-  if (result.status === 'success') {
-    menfessInput.value = '';
-    fetchPesanDariSheets();
-    alert('Pesan menfess sudah terkirim!');
-  } else {
-    alert('Gagal kirim pesan: ' + result.message);
-  }
+  kirimPesan(pesan);
 });
 
-// Tombol kembali ke daftar
 backBtn.addEventListener('click', () => {
   detail.classList.add('hidden');
   namaList.style.display = 'flex';
 });
 
-// Inisialisasi tampilan daftar nama
 tampilkanDaftar();
