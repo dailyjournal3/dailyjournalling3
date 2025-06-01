@@ -1,3 +1,6 @@
+// URL Google Apps Script Web App (ganti dengan milikmu)
+const endpointURL = 'https://script.google.com/macros/s/AKfycbx1ZC94VuW01GlqCYy_vCCB2ffLvLa-ijnEmO6912IZoNtDskbpwhzi2gBJFcLJx2dQ/exec';
+
 const siswa = [
   "Aika Hasna Rihadatulaisy",
   "Aila Darin Aqilah",
@@ -38,11 +41,12 @@ const siswa = [
   "Talitha Fadhilah Kanza"
 ];
 
-// Membuat slug (nama file foto) dari nama siswa
+// Fungsi buat slug (nama file foto)
 function slugify(text) {
   return text.toLowerCase().replace(/ /g, '-').replace(/[^\w\-]+/g, '');
 }
 
+// Element DOM
 const namaList = document.getElementById('nama-list');
 const detail = document.getElementById('detail');
 const namaTerpilih = document.getElementById('nama-terpilih');
@@ -53,26 +57,6 @@ const pesanList = document.getElementById('pesan-list');
 const backBtn = document.getElementById('back-btn');
 
 let currentSiswa = null;
-
-// Fungsi kirim data ke Google Sheets via Web App
-function kirimKeGoogleSheets(nama, pesan) {
-  const url = 'https://script.google.com/macros/s/AKfycbx1ZC94VuW01GlqCYy_vCCB2ffLvLa-ijnEmO6912IZoNtDskbpwhzi2gBJFcLJx2dQ/exec';
-
-  fetch(url, {
-    method: 'POST',
-    body: JSON.stringify({ nama: nama, pesan: pesan }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Pesan berhasil dikirim ke Google Sheets:', data);
-  })
-  .catch(error => {
-    console.error('Gagal kirim pesan ke Google Sheets:', error);
-  });
-}
 
 // Tampilkan daftar nama siswa
 function tampilkanDaftar() {
@@ -88,61 +72,85 @@ function tampilkanDaftar() {
   });
 }
 
-// Tampilkan detail siswa + foto + menfess
+// Tampilkan detail siswa, foto, dan load pesan menfess dari Sheets
 function tampilkanDetail(nama) {
   currentSiswa = nama;
   namaTerpilih.textContent = nama;
-  const fotoFileName = slugify(nama) + '.jpg'; // format nama file foto
+  const fotoFileName = slugify(nama) + '.jpg';
   fotoSiswa.src = 'images/' + fotoFileName;
   fotoSiswa.alt = 'Foto ' + nama;
 
-  // Tampilkan detail, sembunyikan daftar nama
   detail.classList.remove('hidden');
   namaList.style.display = 'none';
 
-  // Load pesan menfess dari localStorage
-  loadPesan();
+  fetchPesanDariSheets();
   menfessInput.value = '';
 }
 
-// Simpan pesan menfess ke localStorage
-function simpanPesan(pesan) {
+// Fetch pesan dari Google Sheets via Web App
+async function fetchPesanDariSheets() {
   if (!currentSiswa) return;
-  const key = 'menfess-' + slugify(currentSiswa);
-  let pesanArr = JSON.parse(localStorage.getItem(key)) || [];
-  pesanArr.push(pesan);
-  localStorage.setItem(key, JSON.stringify(pesanArr));
+  try {
+    const res = await fetch(endpointURL);
+    const data = await res.json();
+
+    // Filter pesan khusus siswa yang dipilih
+    const pesanSiswa = data.filter(item => item.nama === currentSiswa);
+
+    // Tampilkan pesan
+    pesanList.innerHTML = '';
+    if (pesanSiswa.length === 0) {
+      pesanList.innerHTML = '<li>Belum ada pesan menfess nih.</li>';
+    } else {
+      pesanSiswa.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p.pesan;
+        pesanList.appendChild(li);
+      });
+    }
+  } catch (err) {
+    console.error('Error fetch pesan:', err);
+    pesanList.innerHTML = '<li>Gagal mengambil pesan menfess.</li>';
+  }
 }
 
-// Load pesan menfess dari localStorage dan tampilkan
-function loadPesan() {
-  if (!currentSiswa) return;
-  const key = 'menfess-' + slugify(currentSiswa);
-  let pesanArr = JSON.parse(localStorage.getItem(key)) || [];
-  pesanList.innerHTML = '';
-  pesanArr.forEach((p) => {
-    const li = document.createElement('li');
-    li.textContent = p;
-    pesanList.appendChild(li);
-  });
+// Kirim pesan ke Sheets via POST request
+async function kirimPesanKeSheets(nama, pesan) {
+  try {
+    const res = await fetch(endpointURL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ nama, pesan }),
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('Error kirim pesan:', err);
+    return { status: 'error', message: 'Gagal mengirim pesan' };
+  }
 }
 
-kirimBtn.addEventListener('click', () => {
+// Event kirim pesan
+kirimBtn.addEventListener('click', async () => {
   const pesan = menfessInput.value.trim();
   if (!pesan) {
     alert('Tulis pesan dulu ya!');
     return;
   }
-  simpanPesan(pesan);
-  kirimKeGoogleSheets(currentSiswa, pesan); // Kirim pesan ke Google Sheets juga
-  menfessInput.value = '';
-  loadPesan();
-  alert('Pesan menfess sudah terkirim!');
+  const result = await kirimPesanKeSheets(currentSiswa, pesan);
+  if (result.status === 'success') {
+    menfessInput.value = '';
+    fetchPesanDariSheets();
+    alert('Pesan menfess sudah terkirim!');
+  } else {
+    alert('Gagal kirim pesan: ' + result.message);
+  }
 });
 
+// Tombol kembali ke daftar
 backBtn.addEventListener('click', () => {
   detail.classList.add('hidden');
   namaList.style.display = 'flex';
 });
 
+// Inisialisasi tampilan daftar nama
 tampilkanDaftar();
