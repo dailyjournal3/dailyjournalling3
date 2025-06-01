@@ -54,6 +54,26 @@ const backBtn = document.getElementById('back-btn');
 
 let currentSiswa = null;
 
+// Fungsi kirim data ke Google Sheets via Web App
+function kirimKeGoogleSheets(nama, pesan) {
+  const url = 'https://script.google.com/macros/s/AKfycbx1ZC94VuW01GlqCYy_vCCB2ffLvLa-ijnEmO6912IZoNtDskbpwhzi2gBJFcLJx2dQ/exec';
+
+  fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({ nama: nama, pesan: pesan }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Pesan berhasil dikirim ke Google Sheets:', data);
+  })
+  .catch(error => {
+    console.error('Gagal kirim pesan ke Google Sheets:', error);
+  });
+}
+
 // Tampilkan daftar nama siswa
 function tampilkanDaftar() {
   namaList.innerHTML = '';
@@ -114,6 +134,7 @@ kirimBtn.addEventListener('click', () => {
     return;
   }
   simpanPesan(pesan);
+  kirimKeGoogleSheets(currentSiswa, pesan); // Kirim pesan ke Google Sheets juga
   menfessInput.value = '';
   loadPesan();
   alert('Pesan menfess sudah terkirim!');
@@ -124,4 +145,4 @@ backBtn.addEventListener('click', () => {
   namaList.style.display = 'flex';
 });
 
-tampilkanDaftar();     
+tampilkanDaftar();
